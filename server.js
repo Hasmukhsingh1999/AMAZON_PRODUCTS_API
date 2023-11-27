@@ -35,13 +35,44 @@ app.get("/api/get-products", async (req, res) => {
   }
 });
 
-app.get("/api/listed-products", async (req, res) => {
+app.get("/api/amazon-offers", async (req, res) => {
   try {
-    const amazonApiUrl = "https://na.business-api.amazon.com/your/api/endpoint";
+    const amazonApiUrl =
+      "https://na.business-api.amazon.com/products/2020-08-26/products/B091WR26F4/offers";
+
     const headers = { Authorization: `Bearer ${accessKey}` };
-    const response = await axios.get(amazonApiUrl, { headers });
+
+    const queryParams = {
+      productRegion: "IN",
+      locale: "en_IN",
+      facets: "OFFERS",
+    };
+
+    const response = await axios.get(amazonApiUrl, {
+      headers,
+      params: queryParams,
+    });
+
+    const offers = response.data;
+
+    res.json({ success: true, offers });
+  } catch (error) {
+    console.error("Error:", error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.get("/api/product-prices", async (req, res) => {
+  try {
+    const apiUrl = "https://api.escuelajs.co/api/v1/products?title";
+    const response = await axios.get(apiUrl);
     const products = response.data;
-    res.json({ success: true, products });
+
+    const prices = products.map((product) => ({
+      title: product.title,
+      price: product.price,
+    }));
+    res.json({ success: true, prices });
   } catch (error) {
     console.error("Error:", error.message);
     res.status(500).json({ success: false, error: error.message });
