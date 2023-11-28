@@ -3,8 +3,10 @@ const axios = require("axios");
 const cors = require("cors");
 const morgan = require("morgan");
 const dotenv = require("dotenv");
+const { connectDb } = require("./database/db");
 
 dotenv.config();
+connectDb()
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -82,8 +84,13 @@ app.use(express.urlencoded({ extended: true }));
 //   }
 // });
 
-
-
+app.post("/api/store-products", async (req, res) => {
+  const { productUrl } = req.body;
+  try {
+  } catch (error) {
+    throw new Error(`No product Found : ${error.message}`);
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server started at http://localhost:${PORT}`);
