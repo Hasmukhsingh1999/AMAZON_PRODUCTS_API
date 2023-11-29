@@ -92,25 +92,7 @@ app.post("/api/store-products", async (req, res) => {
   }
 });
 
-// Read file data ->
-// app.get('/api/excel-data',async(req,res)=>{
-//   try {
-//     const workbook = new ExcelJs.Workbook();
-//     await workbook.xlsx.readFile('./ProductList/file.xlsx');
 
-//     const worksheet = workbook.getWorksheet(1);
-
-//     const data = [];
-//     worksheet.eachRow({includeEmpty:false},(row,rowNumber)=>{
-//       const rowData = row.values;
-//       data.push(rowData);
-//     })
-//     res.json(data)
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({error:"Internal Server Error"})
-//   }
-// })
 
 app.get("/api/excel-data", async (req, res) => {
   try {
@@ -148,6 +130,39 @@ app.get("/api/excel-data", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+
+// GET ENTIRE DATA->
+app.get('/api/get-all-product-data',async(req,res)=>{
+  try {
+    const workbook = new ExcelJs.Workbook();
+    await workbook.xlsx.readFile('./ProductList/file.xlsx');
+    const worksheet = workbook.getWorksheet(1);
+
+    const data = [];
+    const headers = [];
+
+    worksheet.getRow(1).eachCell({includeEmpty:false},(cell)=>{
+      headers.push(cell.value);
+    })
+    worksheet.eachRow({includeEmpty:false,firstRow:2},(row,rowNumber)=>{
+      const rowData = {};
+
+      row.eachCell({includeEmpty:false},(cell,colNumber)=>{
+        rowData[headers[colNumber-1]] = cell.value;
+      })
+      data.push(rowData)
+    })
+
+   
+    res.json(data)
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({error:"Internal Server Error"});
+  }
+})
+
 
 app.listen(PORT, () => {
   console.log(`Server started at http://localhost:${PORT}`);
